@@ -1,5 +1,6 @@
 const UserModel = require('../models/userModel');
 const userModel = require('../models/userModel');
+const jwt = require('../wrappers/jwt');
 const bcrypt = require('../wrappers/bcrypt');
 
 
@@ -56,13 +57,12 @@ exports.findAllUsers = (req, res) => {
 exports.updateUser = (req, res) =>{
     try{
         const {user_id, name, email, password, data} = req.body;
-        const hashedPassword = bcrypt.hashUserPassword(password);
-        const user = new UserModel(user_id, name, email, hashedPassword, data);
+        const user = new UserModel(user_id, name, email, password, data);
         user.updateUser().then(result => {
             res.status(200).send({message: 'User updated successfully', log: result, newUser : user});
         }).catch(error => {
             console.log(error);
-            res.status(400).send({message: 'Error updating user', error});
+            res.status(400).send({message: 'Error updating user....', error});
         });
     }
     catch(error){
@@ -112,10 +112,15 @@ exports.Login =(req, res) =>{
         const {user_id, password} = req.body;
         const user = new UserModel(user_id, null, null, password);
         user.loginUser().then(result => {
-            if (!result || !bcrypt.compareUserPassword(password, result[0].password)) {
-                return res.status(404).send({ message: 'User not found or invalid password' });
+            if (!result[0] || !bcrypt.compareUserPassword(password, result[0].password)) {
+                console.log(bcrypt.compareUserPassword(password, result[0].password));
+                return res.status(404).send({ message: 'User not found or invalid password ...' });
             }
-            res.status(200).send({message: 'User logged in successfully', user: result});
+            const token = jwt.createToken({ user_id });
+            res.cookie('jwt', token, { httpOnly: true });  
+            res.cookie('jwt pero mal', token, { httpOnly: true }); //para tener varios cookies simulados para probar la busqueda de cookies //!ELiminarme luego, solo estoy aqui por pruebas
+            res.status(200).send({message: 'User logged in successfully', user: result, token: token});
+
         }).catch(error => {
             console.log(error);
             res.status(404).send({message: 'User not found or unvalid password', error});
@@ -124,5 +129,9 @@ exports.Login =(req, res) =>{
     catch(error){
         res.status(400).send({message: 'Ocurrio un error al logearse'});
     }
-
+}
+exports.logout = (req, res) => {
+    res.clearCookie('jwt');
+    res.clearCookie('jwt pero mal'); //!ELiminarme luego, solo estoy aqui por pruebas
+    res.status(200).send({message: 'User logged out successfully'});
 }

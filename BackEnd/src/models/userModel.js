@@ -1,4 +1,5 @@
 const db = require('../../configs/dbConnection');
+const bcrypt = require('../wrappers/bcrypt');
 
 class UserModel {
     constructor(user_id ,name, email, password, data) {
@@ -18,6 +19,13 @@ class UserModel {
             if (this.user_id.length === 0 || this.name.length === 0 || this.email.length === 0 || this.password.length === 0 || this.data.length === 0) {
                 reject('Empty required fields');
             }
+
+            // Validación de formato de correo electrónico
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(this.email)) {
+            reject('Invalid email format');
+            }
+
             db.query('SELECT * FROM users WHERE user_id = ?', [this.user_id], (error, result) => {
             if (result.length > 0) {reject('User already exists');}});
 
@@ -68,21 +76,38 @@ class UserModel {
         });
     }
 
-    updateUser(){
+    updateUser() {
         return new Promise((resolve, reject) => {
-            const query = 'UPDATE users SET name = ?, email = ?, password = ?, data = ? WHERE user_id = ?';
-            db.query(query, [this.name, this.email, this.password, JSON.stringify(this.data), this.user_id], (error, result) => {
+            const setFields = [];
+            const values = [];   
+            if (this.name !== undefined) {
+                setFields.push(`name = ?`);
+                values.push(this.name);
+            }
+            if (this.email !== undefined) {
+                setFields.push(`email = ?`);
+                values.push(this.email);
+            }
+            if (this.password !== undefined) {
+                setFields.push(`password = ?`);
+                values.push(bcrypt.hashUserPassword(this.password));
+            }
+            if (this.data !== undefined) {
+                setFields.push(`data = ?`);
+                values.push(JSON.stringify(this.data));
+            }          
+            values.push(this.user_id);
+            const query = `UPDATE users SET ${setFields.join(', ')} WHERE user_id = ?`;  
+            db.query(query, values, (error, result) => {
                 if (error) {
                     reject(error);
                 } else {
                     resolve(result);
                 }
             });
-        }
-
-        );
+        });
     }
-
+    
     deleteUserDefinitely(){
         return new Promise((resolve, reject)=>{
             const query = 'DELETE FROM users WHERE user_id = ?';
