@@ -1,5 +1,4 @@
 const UserModel = require('../models/userModel');
-const userModel = require('../models/userModel');
 const jwt = require('../wrappers/jwt');
 const bcrypt = require('../wrappers/bcrypt');
 
@@ -8,8 +7,7 @@ exports.createUser = (req, res) => {
     try{
         const {user_id, name, email, password, data} = req.body;
         const hashedPassword = bcrypt.hashUserPassword(password);
-        const newUser = new userModel(user_id, name, email, hashedPassword, data);
-        console.log(newUser);
+        const newUser = new UserModel(user_id, name, email, hashedPassword, data);
         newUser.createUser().then(result => {
             res.status(201).send({message: 'User created successfully', newUser});
         }).catch(error => {
@@ -26,7 +24,7 @@ exports.createUser = (req, res) => {
 exports.findUserById = (req, res) => {
     try{
         const {user_id} = req.query;
-        user = new userModel(user_id);
+        user = new UserModel(user_id);
         user.findUserById().then(result => {
             res.status(200).send({message: 'User found', user: result});
         }).catch(error => {

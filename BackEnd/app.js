@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const userRoutes = require('./src/routes/userRoutes');
+const proyectRoutes = require('./src/routes/proyectRoutes');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
 
@@ -18,6 +19,7 @@ app.use(morgan('dev'));
 //routes
 
 app.use('/api/user', userRoutes);
+app.use('/api/proyect', proyectRoutes);
 
 
 
