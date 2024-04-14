@@ -31,6 +31,27 @@ class ProyectModel{
         })
     }
 
+    getProyectById(){
+        return new Promise ((resolve, reject)=>{
+            if(this.proyect_id === undefined){
+                reject('Missing required fields');
+            }
+            if(this.proyect_id.length === 0){
+                reject('Empty required fields');
+            }
+            db.query('SELECT * FROM proyects WHERE proyect_id = ?', [this.proyect_id], (error, result)=>{
+                if(error){
+                    reject(error);
+                } else {
+                    if(result.length > 0){
+                        result[0].content = JSON.parse(result[0].content);
+                    }
+                    resolve(result);
+                }
+            })
+        })
+    }
+
     getAllProyects(){
         return new Promise ((resolve, reject)=>{
             db.query('SELECT * FROM proyects', (error, result)=>{
@@ -121,5 +142,25 @@ class ProyectModel{
             })
         })
     }
+
+    updateContent(){
+        return new Promise ((resolve, reject) =>{
+            if(this.proyect_id === undefined || this.content === undefined){
+                reject('Missing required fields');
+            }
+            if(this.proyect_id.length === 0 || this.content.length === 0){
+                reject('Empty required fields');
+            }
+            db.query('UPDATE proyects SET content = ? WHERE proyect_id = ?', [JSON.stringify(this.content), this.proyect_id], (error, result)=>{
+                if(error){
+                    reject(error);
+                } else {
+                    resolve(result);
+                }
+            }
+
+        )})
+    }
+
 }
 module.exports = ProyectModel;
