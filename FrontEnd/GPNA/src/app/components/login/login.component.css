@@ -1,0 +1,20 @@
+.loginContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: auto;
+  margin-top: 0;
+  background: gray;
+}
+
+.LoginForm {
+  border: 1px solid #000000;
+  width: 600px;
+  height: 400px;
+  background: white;
+}
+
+p {
+  text-align: center;
+}

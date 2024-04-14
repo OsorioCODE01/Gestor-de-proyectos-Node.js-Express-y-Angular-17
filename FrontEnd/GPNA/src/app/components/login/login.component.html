@@ -1,0 +1,17 @@
+<section class="loginContainer">
+  <div class="LoginForm">
+    <p>LOGIN</p>
+    <form class="login" (ngSubmit)="login()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          class="form-control"
+          id="email"
+          placeholder="Enter email"
+        />
+      </div>
+    </form>
+  </div>
+</section>
